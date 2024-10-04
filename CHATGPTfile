@@ -1,0 +1,71 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+// Function to calculate how many "narek" sequences a single string can contribute
+int countNarekInString(const string& s) {
+    int count = 0;
+    int needed = 0;
+    string target = "narek";
+    int len = target.length();
+    vector<int> targetCount(len, 0);
+    
+    for (char ch : s) {
+        if (ch == target[needed]) {
+            targetCount[needed]++;
+            if (++needed == len) {
+                needed = 0;
+                count++;
+                targetCount.assign(len, 0);
+            }
+        }
+    }
+    return count;
+}
+
+int solve(int n, int m, vector<string>& strings) {
+    vector<int> dp(1001, 0);  // dp[i] will store the maximum scoren for i selected strings
+    dp[0] = 0;  // No strings, no score
+
+    for (const string& s : strings) {
+        int k = countNarekInString(s);
+        int score = 5 * k;  // scoren for this string
+        for (int i = n; i > 0; --i) {
+            if (dp[i - 1] != -1) {
+                dp[i] = max(dp[i], dp[i - 1] + score);
+            }
+        }
+    }
+
+    // Calculate the maximum scoren - scorec
+    int maxResult = 0;
+    for (int i = 0; i <= n; ++i) {
+        if (dp[i] != -1) {
+            maxResult = max(maxResult, dp[i] - (n - i) * 5);
+        }
+    }
+
+    return maxResult;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int t;
+    cin >> t;
+    while (t--) {
+        int n, m;
+        cin >> n >> m;
+        vector<string> strings(n);
+        for (int i = 0; i < n; ++i) {
+            cin >> strings[i];
+        }
+        cout << solve(n, m, strings) << "\n";
+    }
+
+    return 0;
+}
